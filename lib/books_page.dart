@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'book_details_page.dart';
 
 import 'book.dart';
 
@@ -54,6 +55,18 @@ class BooksPage extends StatelessWidget {
                     ? 'Available'
                     : 'Borrowed',
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return BookDetailsPage(
+                        book: book,
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           );
         },

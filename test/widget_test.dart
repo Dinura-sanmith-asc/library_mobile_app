@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:library_mobile_app/books_page.dart';
 import 'package:library_mobile_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Home page opens the books list', (WidgetTester tester) async {
+    await tester.pumpWidget(const LibraryApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.text('Books'), findsOneWidget);
+    expect(find.text('Members'), findsOneWidget);
+    expect(find.text('Borrowings'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.tap(find.text('Books'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(BooksPage), findsOneWidget);
+    expect(find.text('Clean Code'), findsOneWidget);
+    expect(find.text('The Pragmatic Programmer'), findsOneWidget);
+    expect(find.text('Available'), findsNWidgets(3));
+    expect(find.text('Borrowed'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome'), findsOneWidget);
   });
 }
