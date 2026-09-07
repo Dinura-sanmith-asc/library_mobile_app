@@ -1,0 +1,101 @@
+# =========================================================
+# Flutter / Dart
+# =========================================================
+
+.dart_tool/
+.packages
+.pub/
+build/
+
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Generated documentation
+doc/api/
+
+# =========================================================
+# Environment / Secrets
+# =========================================================
+
+.env
+.env.*
+!.env.example
+
+# =========================================================
+# FVM
+# =========================================================
+
+.fvm/flutter_sdk
+
+# Keep .fvmrc in Git so everyone uses the same Flutter version.
+
+# =========================================================
+# Android
+# =========================================================
+
+android/.gradle/
+android/local.properties
+
+# Signing / Keystore secrets
+*.jks
+*.keystore
+android/key.properties
+
+# Android build outputs
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# =========================================================
+# iOS / macOS
+# =========================================================
+
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+
+# Xcode user-specific files
+**/xcuserdata/
+**/*.xcuserstate
+
+# =========================================================
+# Windows / Linux generated files
+# =========================================================
+
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# =========================================================
+# VS Code
+# =========================================================
+
+.vscode/
+
+# =========================================================
+# IntelliJ / Android Studio
+# =========================================================
+
+.idea/
+*.iml
+
+# =========================================================
+# OS files
+# =========================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================================================
+# Logs / Temporary files
+# =========================================================
+
+*.log
+*.tmp
+*.temp
