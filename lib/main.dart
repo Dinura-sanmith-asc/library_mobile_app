@@ -26,24 +26,95 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Library Management'),
       ),
-      body: const Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.local_library,
-              size: 80,
-            ),
-            SizedBox(height: 20),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: const [
             Text(
-              'Welcome to the Library',
+              'Welcome',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
-            Text('Manage books, members and borrowings'),
+            SizedBox(height: 8),
+            Text(
+              'Choose what you want to manage',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 24),
+
+            LibraryMenuCard(
+              icon: Icons.book,
+              title: 'Books',
+              subtitle: 'Browse and manage books',
+            ),
+
+            SizedBox(height: 16),
+
+            LibraryMenuCard(
+              icon: Icons.people,
+              title: 'Members',
+              subtitle: 'Manage library members',
+            ),
+
+            SizedBox(height: 16),
+
+            LibraryMenuCard(
+              icon: Icons.swap_horiz,
+              title: 'Borrowings',
+              subtitle: 'Borrow and return books',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LibraryMenuCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const LibraryMenuCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 40,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(subtitle),
+                ],
+              ),
+            ),
           ],
         ),
       ),
