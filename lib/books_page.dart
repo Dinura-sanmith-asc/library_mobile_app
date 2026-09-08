@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'book_details_page.dart';
+import 'add_book_page.dart';
 
 import 'book.dart';
 
@@ -70,6 +71,17 @@ class BooksPage extends StatelessWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddBookPage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

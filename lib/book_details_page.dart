@@ -45,10 +45,8 @@ class BookDetailsPage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            Text(
-              book.isAvailable
-                  ? 'Status: Available'
-                  : 'Status: Borrowed',
+            AvailabilityText(
+              isAvailable: book.isAvailable,
             ),
 
             const SizedBox(height: 24),
@@ -61,6 +59,27 @@ class BookDetailsPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class AvailabilityText extends StatelessWidget {
+  final bool isAvailable;
+
+  const AvailabilityText({
+    super.key,
+    required this.isAvailable,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      isAvailable
+          ? 'Status: Available'
+          : 'Status: Borrowed',
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
       ),
     );
   }
