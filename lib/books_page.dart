@@ -1,32 +1,36 @@
 import 'package:flutter/material.dart';
-import 'book_details_page.dart';
-import 'add_book_page.dart';
 
 import 'book.dart';
+import 'book_details_page.dart';
 
-class BooksPage extends StatelessWidget {
+class BooksPage extends StatefulWidget {
   const BooksPage({super.key});
 
-  static const List<Book> books = [
-    Book(
+  @override
+  State<BooksPage> createState() => _BooksPageState();
+}
+
+class _BooksPageState extends State<BooksPage> {
+  final List<Book> books = [
+    const Book(
       id: 1,
       title: 'Clean Code',
       author: 'Robert C. Martin',
       isAvailable: true,
     ),
-    Book(
+    const Book(
       id: 2,
       title: 'The Pragmatic Programmer',
       author: 'Andrew Hunt',
       isAvailable: false,
     ),
-    Book(
+    const Book(
       id: 3,
       title: 'Flutter in Action',
       author: 'Eric Windmill',
       isAvailable: true,
     ),
-    Book(
+    const Book(
       id: 4,
       title: 'Design Patterns',
       author: 'Erich Gamma',
@@ -71,17 +75,6 @@ class BooksPage extends StatelessWidget {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddBookPage(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }

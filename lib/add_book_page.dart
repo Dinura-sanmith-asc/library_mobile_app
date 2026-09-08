@@ -30,17 +30,16 @@ class _AddBookPageState extends State<AddBookPage> {
       return;
     }
 
-    final title = _titleController.text.trim();
-    final author = _authorController.text.trim();
+    final newBook = Book(
+      id: DateTime.now().millisecondsSinceEpoch,
+      title: _titleController.text.trim(),
+      author: _authorController.text.trim(),
+      isAvailable: _isAvailable,
+    );
 
-    debugPrint('Title: $title');
-    debugPrint('Author: $author');
-    debugPrint('Available: $_isAvailable');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Book form is valid'),
-      ),
+    Navigator.pop(
+      context,
+      newBook,
     );
   }
 
