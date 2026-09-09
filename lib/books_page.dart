@@ -11,6 +11,8 @@ class BooksPage extends StatefulWidget {
 }
 
 class _BooksPageState extends State<BooksPage> {
+  String searchQuery = '';
+  
   final List<Book> books = [
     const Book(
       id: 1,
@@ -40,41 +42,72 @@ class _BooksPageState extends State<BooksPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final filteredBooks = books.where((book) {
+      final title = book.title.toLowerCase();
+      final author = book.author.toLowerCase();
+      final query = searchQuery.toLowerCase();
+
+      return title.contains(query) ||
+          author.contains(query);
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Books'),
       ),
-      body: ListView.builder(
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        itemCount: books.length,
-        itemBuilder: (context, index) {
-          final book = books[index];
-
-          return Card(
-            child: ListTile(
-              leading: const Icon(Icons.book),
-              title: Text(book.title),
-              subtitle: Text(book.author),
-              trailing: Text(
-                book.isAvailable
-                    ? 'Available'
-                    : 'Borrowed',
+        child: Column(
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search books',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return BookDetailsPage(
-                        book: book,
-                      );
-                    },
-                  ),
-                );
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
               },
             ),
-          );
-        },
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredBooks.length,
+                itemBuilder: (context, index) {
+                  final book = filteredBooks[index];
+
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.book),
+                      title: Text(book.title),
+                      subtitle: Text(book.author),
+                      trailing: Text(
+                        book.isAvailable
+                            ? 'Available'
+                            : 'Borrowed',
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return BookDetailsPage(
+                                book: book,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

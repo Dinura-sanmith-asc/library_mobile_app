@@ -51,7 +51,7 @@ class HomePage extends StatelessWidget {
             LibraryMenuCard(
               icon: Icons.book,
               title: 'Books',
-              subtitle: 'Browse and manage books',
+              subtitle: 'Find and view library books',
               onTap: () {
                 Navigator.push(
                   context,
@@ -65,17 +65,17 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 16),
 
             const LibraryMenuCard(
-              icon: Icons.people,
-              title: 'Members',
-              subtitle: 'Manage library members',
+              icon: Icons.swap_horiz,
+              title: 'My Borrowings',
+              subtitle: 'View your borrowed books',
             ),
 
             const SizedBox(height: 16),
 
             const LibraryMenuCard(
-              icon: Icons.swap_horiz,
-              title: 'Borrowings',
-              subtitle: 'Borrow and return books',
+              icon: Icons.people,
+              title: 'My Profile',
+              subtitle: 'View and update your profile',
             ),
           ],
         ),
