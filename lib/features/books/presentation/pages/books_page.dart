@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../book.dart';
+import '../../domain/entities/book.dart';
 import 'book_details_page.dart';
 
 class BooksPage extends StatefulWidget {
