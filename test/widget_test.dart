@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:library_mobile_app/books_page.dart';
+import 'package:library_mobile_app/features/books/presentation/pages/books_page.dart';
 import 'package:library_mobile_app/main.dart';
 
 void main() {
