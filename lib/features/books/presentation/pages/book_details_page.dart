@@ -1,14 +1,64 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/book.dart';
+import '../../domain/usecases/get_book_by_id.dart';
 
-class BookDetailsPage extends StatelessWidget {
-  final Book book;
+class BookDetailsPage extends StatefulWidget {
+  final int bookId;
+
+  final GetBookById getBookById;
 
   const BookDetailsPage({
     super.key,
-    required this.book,
+    required this.bookId,
+    required this.getBookById,
   });
+
+  @override
+  State<BookDetailsPage> createState() =>
+      _BookDetailsPageState();
+}
+
+class _BookDetailsPageState
+    extends State<BookDetailsPage> {
+  Book? book;
+
+  bool isLoading = true;
+
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadBook();
+  }
+
+  Future<void> _loadBook() async {
+    try {
+      final result = await widget.getBookById(
+        widget.bookId,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        book = result;
+        isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        errorMessage = 'Book not found';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,70 +66,53 @@ class BookDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Book Details'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              book.title,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Text(
-              'Author: ${book.author}',
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Text(
-              'Book ID: ${book.id}',
-            ),
-
-            const SizedBox(height: 12),
-
-            AvailabilityText(
-              isAvailable: book.isAvailable,
-            ),
-
-            const SizedBox(height: 24),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Go Back'),
-            ),
-          ],
-        ),
-      ),
+      body: _buildBody(),
     );
   }
-}
 
-class AvailabilityText extends StatelessWidget {
-  final bool isAvailable;
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
-  const AvailabilityText({
-    super.key,
-    required this.isAvailable,
-  });
+    if (errorMessage != null) {
+      return Center(
+        child: Text(errorMessage!),
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      isAvailable
-          ? 'Status: Available'
-          : 'Status: Borrowed',
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
+    final currentBook = book!;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          Text(
+            currentBook.title,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Author: ${currentBook.author}',
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Book ID: ${currentBook.id}',
+          ),
+          const SizedBox(height: 12),
+          Text(
+            currentBook.isAvailable
+                ? 'Status: Available'
+                : 'Status: Borrowed',
+          ),
+        ],
       ),
     );
   }
