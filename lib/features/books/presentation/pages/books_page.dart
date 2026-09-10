@@ -36,6 +36,8 @@ class _BooksPageState extends State<BooksPage> {
     try {
       final result = await widget.getBooks();
 
+      debugPrint('BOOKS PAGE RESULT: ${result.length}');
+      
       if (!mounted) {
         return;
       }
