@@ -19,9 +19,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/books',
       builder: (context, state) {
-        return BooksPage(
-          getBooks: getBooksUseCase,
-        );
+        return const BooksPage();
       },
     ),
 
