@@ -1,67 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/book.dart';
-import '../../domain/usecases/get_books.dart';
+import '../providers/book_providers.dart';
 
-class BooksPage extends StatefulWidget {
-  final GetBooks getBooks;
-
-  const BooksPage({
-    super.key,
-    required this.getBooks,
-  });
+class BooksPage extends ConsumerStatefulWidget {
+  const BooksPage({super.key});
 
   @override
-  State<BooksPage> createState() => _BooksPageState();
+  ConsumerState<BooksPage> createState() =>
+      _BooksPageState();
 }
 
-class _BooksPageState extends State<BooksPage> {
-  List<Book> books = [];
-
+class _BooksPageState
+    extends ConsumerState<BooksPage> {
   String searchQuery = '';
-
-  bool isLoading = true;
-
-  String? errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _loadBooks();
-  }
-
-  Future<void> _loadBooks() async {
-    try {
-      final result = await widget.getBooks();
-
-      debugPrint('BOOKS PAGE RESULT: ${result.length}');
-      
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        books = result;
-        isLoading = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        errorMessage = 'Failed to load books';
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final booksAsync = ref.watch(
+      booksProvider,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Books'),
+      ),
+      body: booksAsync.when(
+        loading: () {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+        error: (error, stackTrace) {
+          return const Center(
+            child: Text(
+              'Failed to load books',
+            ),
+          );
+        },
+        data: (books) {
+          return _buildBooksContent(
+            books,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBooksContent(
+    List<Book> books,
+  ) {
     final filteredBooks = books.where((book) {
-      final query = searchQuery.toLowerCase();
+      final query =
+          searchQuery.toLowerCase();
 
       return book.title
               .toLowerCase()
@@ -70,27 +63,6 @@ class _BooksPageState extends State<BooksPage> {
               .toLowerCase()
               .contains(query);
     }).toList();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Books'),
-      ),
-      body: _buildBody(filteredBooks),
-    );
-  }
-
-  Widget _buildBody(List<Book> filteredBooks) {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (errorMessage != null) {
-      return Center(
-        child: Text(errorMessage!),
-      );
-    }
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -112,19 +84,26 @@ class _BooksPageState extends State<BooksPage> {
           Expanded(
             child: filteredBooks.isEmpty
                 ? const Center(
-                    child: Text('No books found'),
+                    child: Text(
+                      'No books found',
+                    ),
                   )
                 : ListView.builder(
-                    itemCount: filteredBooks.length,
-                    itemBuilder: (context, index) {
+                    itemCount:
+                        filteredBooks.length,
+                    itemBuilder:
+                        (context, index) {
                       final book =
                           filteredBooks[index];
 
                       return Card(
                         child: ListTile(
                           leading:
-                              const Icon(Icons.book),
-                          title: Text(book.title),
+                              const Icon(
+                            Icons.book,
+                          ),
+                          title:
+                              Text(book.title),
                           subtitle:
                               Text(book.author),
                           trailing: Text(
