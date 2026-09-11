@@ -1,118 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/entities/book.dart';
-import '../../domain/usecases/get_book_by_id.dart';
+import '../providers/book_providers.dart';
 
-class BookDetailsPage extends StatefulWidget {
+class BookDetailsPage extends ConsumerWidget {
   final int bookId;
-
-  final GetBookById getBookById;
 
   const BookDetailsPage({
     super.key,
     required this.bookId,
-    required this.getBookById,
   });
 
   @override
-  State<BookDetailsPage> createState() =>
-      _BookDetailsPageState();
-}
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final bookAsync = ref.watch(
+      bookDetailsProvider(bookId),
+    );
 
-class _BookDetailsPageState
-    extends State<BookDetailsPage> {
-  Book? book;
-
-  bool isLoading = true;
-
-  String? errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _loadBook();
-  }
-
-  Future<void> _loadBook() async {
-    try {
-      final result = await widget.getBookById(
-        widget.bookId,
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        book = result;
-        isLoading = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        errorMessage = 'Book not found';
-        isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Details'),
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (errorMessage != null) {
-      return Center(
-        child: Text(errorMessage!),
-      );
-    }
-
-    final currentBook = book!;
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Text(
-            currentBook.title,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
+      body: bookAsync.when(
+        loading: () {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+        error: (error, stackTrace) {
+          return const Center(
+            child: Text('Book not found'),
+          );
+        },
+        data: (book) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  book.title,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Author: ${book.author}',
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Book ID: ${book.id}',
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  book.isAvailable
+                      ? 'Status: Available'
+                      : 'Status: Borrowed',
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Author: ${currentBook.author}',
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Book ID: ${currentBook.id}',
-          ),
-          const SizedBox(height: 12),
-          Text(
-            currentBook.isAvailable
-                ? 'Status: Available'
-                : 'Status: Borrowed',
-          ),
-        ],
+          );
+        },
       ),
     );
   }

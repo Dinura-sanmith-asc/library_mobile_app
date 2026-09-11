@@ -1,11 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:library_mobile_app/features/books/presentation/pages/books_page.dart';
-import 'package:library_mobile_app/main.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:library_mobile_app/app.dart';
 
 void main() {
   testWidgets('Home page opens the books list', (WidgetTester tester) async {
-    await tester.pumpWidget(const LibraryApp());
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: LibraryApp(),
+      ),
+    );
 
     expect(find.text('Welcome'), findsOneWidget);
     expect(find.text('Books'), findsOneWidget);

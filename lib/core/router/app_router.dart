@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import '../di/book_dependencies.dart';
 
 import '../../features/books/presentation/pages/books_page.dart';
 import '../../features/books/presentation/pages/book_details_page.dart';
@@ -32,7 +31,6 @@ final appRouter = GoRouter(
 
         return BookDetailsPage(
           bookId: id,
-          getBookById: getBookByIdUseCase,
         );
       },
     ),

@@ -55,3 +55,12 @@ final booksProvider =
 
   return getBooks();
 });
+
+final bookDetailsProvider =
+    FutureProvider.family<Book, int>((ref, bookId) async {
+  final getBookById = ref.watch(
+    getBookByIdProvider,
+  );
+
+  return getBookById(bookId);
+});
