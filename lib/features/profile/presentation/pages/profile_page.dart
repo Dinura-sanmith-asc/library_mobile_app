@@ -17,8 +17,8 @@ class ProfilePage extends ConsumerWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () {
-            ref
+          onPressed: () async {
+            await ref
                 .read(authProvider.notifier)
                 .logout();
           },
