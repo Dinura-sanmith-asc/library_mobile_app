@@ -24,8 +24,8 @@ class UnsupportedRolePage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                ref
+              onPressed: () async {
+                await ref
                     .read(authProvider.notifier)
                     .logout();
               },
