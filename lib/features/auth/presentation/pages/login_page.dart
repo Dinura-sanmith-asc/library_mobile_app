@@ -55,6 +55,22 @@ class _LoginPageState
       authProvider,
     );
 
+    ref.listen(
+      authProvider,
+      (previous, next) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Invalid email or password',
+              ),
+            ),
+          );
+        }
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Library Login'),
