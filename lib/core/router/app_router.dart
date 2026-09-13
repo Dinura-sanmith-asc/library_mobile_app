@@ -13,7 +13,14 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import 'main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authAsync =
+    ref.watch(authProvider);
+
+  final authState =
+      authAsync.value ??
+      const AuthState(
+        status: AuthStatus.loggedOut,
+      );
 
   return GoRouter(
     initialLocation: '/home',
