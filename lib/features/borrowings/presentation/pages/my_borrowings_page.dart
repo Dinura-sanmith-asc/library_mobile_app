@@ -79,10 +79,16 @@ class _BorrowingCard extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Text('Borrowed: ${_formatDate(borrowing.borrowedDate)}'),
+            Text(
+              'Borrowed: '
+              '${_formatDate(borrowing.borrowedDate)}',
+            ),
             Text('Due: ${_formatDate(borrowing.dueDate)}'),
             if (borrowing.returnedDate != null)
-              Text('Returned: ${_formatDate(borrowing.returnedDate!)}'),
+              Text(
+                'Returned: '
+                '${_formatDate(borrowing.returnedDate!)}',
+              ),
             const SizedBox(height: 8),
             _StatusChip(status: borrowing.status),
           ],

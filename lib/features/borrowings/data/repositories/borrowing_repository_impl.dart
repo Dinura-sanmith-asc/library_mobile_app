@@ -13,4 +13,9 @@ class BorrowingRepositoryImpl implements BorrowingRepository {
 
     return models.map((model) => model.toEntity()).toList();
   }
+
+  @override
+  Future<void> borrowBook({required int bookId, required int memberId}) {
+    return remoteDataSource.borrowBook(bookId: bookId, memberId: memberId);
+  }
 }

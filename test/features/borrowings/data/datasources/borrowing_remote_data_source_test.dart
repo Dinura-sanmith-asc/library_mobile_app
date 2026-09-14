@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:library_mobile_app/core/api/api_client.dart';
+import 'package:library_mobile_app/core/api/api_exception.dart';
 import 'package:library_mobile_app/core/storage/secure_storage_service.dart';
 import 'package:library_mobile_app/features/borrowings/data/datasources/borrowing_remote_data_source.dart';
 
@@ -24,15 +25,61 @@ void main() {
 
     final borrowings = await dataSource.getMemberBorrowings(30);
 
-    expect(adapter.lastRequest?.path, '/api/members/30/borrowings');
-    expect(adapter.lastRequest?.headers['Authorization'], 'Bearer jwt-token');
+    expect(adapter.request?.method, 'GET');
+    expect(adapter.request?.path, '/api/members/30/borrowings');
+    expect(adapter.request?.headers['Authorization'], 'Bearer jwt-token');
     expect(borrowings, hasLength(1));
     expect(borrowings.single.memberId, 30);
   });
+
+  test('posts the book and authenticated member IDs with JWT', () async {
+    const storage = SecureStorageService();
+    await storage.saveAccessToken('jwt-token');
+    final adapter = _BorrowingApiAdapter();
+    final client = ApiClient(storage)..dio.httpClientAdapter = adapter;
+    final dataSource = BorrowingRemoteDataSourceImpl(client);
+
+    await dataSource.borrowBook(bookId: 7, memberId: 23);
+
+    expect(adapter.request?.method, 'POST');
+    expect(adapter.request?.path, '/api/borrowings');
+    expect(adapter.request?.headers['Authorization'], 'Bearer jwt-token');
+    expect(adapter.request?.data, {'bookId': 7, 'memberId': 23});
+  });
+
+  for (final testCase in [
+    (statusCode: 400, type: ApiExceptionType.badRequest),
+    (statusCode: 403, type: ApiExceptionType.forbidden),
+    (statusCode: 404, type: ApiExceptionType.notFound),
+    (statusCode: 409, type: ApiExceptionType.conflict),
+  ]) {
+    test('maps POST ${testCase.statusCode} to ${testCase.type.name}', () async {
+      const storage = SecureStorageService();
+      final adapter = _BorrowingApiAdapter(postStatusCode: testCase.statusCode);
+      final client = ApiClient(storage)..dio.httpClientAdapter = adapter;
+      final dataSource = BorrowingRemoteDataSourceImpl(client);
+
+      expect(
+        dataSource.borrowBook(bookId: 7, memberId: 23),
+        throwsA(
+          isA<ApiException>()
+              .having((error) => error.type, 'type', testCase.type)
+              .having(
+                (error) => error.message,
+                'message',
+                'Backend borrowing message.',
+              ),
+        ),
+      );
+    });
+  }
 }
 
 class _BorrowingApiAdapter implements HttpClientAdapter {
-  RequestOptions? lastRequest;
+  final int postStatusCode;
+  RequestOptions? request;
+
+  _BorrowingApiAdapter({this.postStatusCode = 201});
 
   @override
   Future<ResponseBody> fetch(
@@ -40,21 +87,25 @@ class _BorrowingApiAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    lastRequest = options;
+    request = options;
+    final isHistoryRequest = options.method == 'GET';
+    final body = isHistoryRequest
+        ? jsonEncode([
+            {
+              'id': 10,
+              'bookId': 20,
+              'memberId': 30,
+              'borrowedDate': '2026-09-01T00:00:00Z',
+              'dueDate': '2026-09-15T00:00:00Z',
+              'returnedDate': null,
+              'status': 0,
+            },
+          ])
+        : jsonEncode({'id': 1, 'detail': 'Backend borrowing message.'});
 
     return ResponseBody.fromString(
-      jsonEncode([
-        {
-          'id': 10,
-          'bookId': 20,
-          'memberId': 30,
-          'borrowedDate': '2026-09-01T00:00:00Z',
-          'dueDate': '2026-09-15T00:00:00Z',
-          'returnedDate': null,
-          'status': 0,
-        },
-      ]),
-      200,
+      body,
+      isHistoryRequest ? 200 : postStatusCode,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
       },

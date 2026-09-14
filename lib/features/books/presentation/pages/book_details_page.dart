@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/api_exception.dart';
+import '../../../borrowings/presentation/providers/borrowing_providers.dart';
 import '../providers/book_providers.dart';
 
 class BookDetailsPage extends ConsumerWidget {
@@ -12,6 +13,7 @@ class BookDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookAsync = ref.watch(bookDetailsProvider(bookId));
+    final borrowAsync = ref.watch(borrowBookProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Book Details')),
@@ -60,6 +62,22 @@ class BookDetailsPage extends ConsumerWidget {
                       ? 'Status: Available'
                       : 'Status: Unavailable',
                 ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: borrowAsync.isLoading
+                        ? null
+                        : () => _borrowBook(context, ref),
+                    child: borrowAsync.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Borrow Book'),
+                  ),
+                ),
               ],
             ),
           );
@@ -74,5 +92,21 @@ class BookDetailsPage extends ConsumerWidget {
     }
 
     return 'Failed to load book details.';
+  }
+
+  Future<void> _borrowBook(BuildContext context, WidgetRef ref) async {
+    await ref.read(borrowBookProvider.notifier).borrowBook(bookId);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final result = ref.read(borrowBookProvider);
+    final message = result.hasError
+        ? result.error.toString()
+        : 'Book borrowed successfully.';
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 }
