@@ -9,6 +9,7 @@ import '../../features/books/presentation/pages/book_details_page.dart';
 import '../../features/books/presentation/pages/books_page.dart';
 import '../../features/borrowings/presentation/pages/my_borrowings_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import 'main_shell.dart';
 
@@ -106,6 +107,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             builder: (context, state) {
               return const ProfilePage();
+            },
+          ),
+
+          GoRoute(
+            path: '/profile/edit',
+            builder: (context, state) {
+              return const EditProfilePage();
             },
           ),
         ],
