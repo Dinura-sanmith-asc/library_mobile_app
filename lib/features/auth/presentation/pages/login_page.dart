@@ -7,19 +7,15 @@ class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() =>
-      _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState
-    extends ConsumerState<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _emailController =
-      TextEditingController();
+  final _emailController = TextEditingController();
 
-  final _passwordController =
-      TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -32,8 +28,7 @@ class _LoginPageState
   }
 
   Future<void> _login() async {
-    final isValid =
-        _formKey.currentState!.validate();
+    final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
       return;
@@ -42,39 +37,26 @@ class _LoginPageState
     await ref
         .read(authProvider.notifier)
         .login(
-          email:
-              _emailController.text.trim(),
-          password:
-              _passwordController.text,
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authAsync = ref.watch(
-      authProvider,
-    );
+    final authAsync = ref.watch(authProvider);
 
-    ref.listen(
-      authProvider,
-      (previous, next) {
-        if (next.hasError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Invalid email or password',
-              ),
-            ),
-          );
-        }
-      },
-    );
+    ref.listen(authProvider, (previous, next) {
+      if (next.hasError) {
+        final message = next.error.toString();
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Library Login'),
-      ),
+      appBar: AppBar(title: const Text('Library Login')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -83,17 +65,13 @@ class _LoginPageState
             children: [
               TextFormField(
                 controller: _emailController,
-                keyboardType:
-                    TextInputType.emailAddress,
-                decoration:
-                    const InputDecoration(
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
                   labelText: 'Email',
-                  border:
-                      OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Email is required';
                   }
 
@@ -104,19 +82,15 @@ class _LoginPageState
               const SizedBox(height: 16),
 
               TextFormField(
-                controller:
-                    _passwordController,
-                obscureText:
-                    _obscurePassword,
+                controller: _passwordController,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  border:
-                      const OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
-                        _obscurePassword =
-                            !_obscurePassword;
+                        _obscurePassword = !_obscurePassword;
                       });
                     },
                     icon: Icon(
@@ -127,8 +101,7 @@ class _LoginPageState
                   ),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Password is required';
                   }
 
@@ -141,18 +114,12 @@ class _LoginPageState
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed:
-                      authAsync.isLoading
-                          ? null
-                          : _login,
+                  onPressed: authAsync.isLoading ? null : _login,
                   child: authAsync.isLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text('Login'),
                 ),

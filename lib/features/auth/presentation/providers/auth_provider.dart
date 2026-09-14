@@ -9,42 +9,29 @@ import '../../../../core/api/api_providers.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 
-final authRemoteDataSourceProvider =
-    Provider<AuthRemoteDataSource>((ref) {
-  final apiClient = ref.watch(
-    apiClientProvider,
-  );
+final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
 
-  return AuthRemoteDataSourceImpl(
-    apiClient,
-  );
+  return AuthRemoteDataSourceImpl(apiClient);
 });
 
-final authRepositoryProvider =
-    Provider<AuthRepository>((ref) {
-  final remoteDataSource = ref.watch(
-    authRemoteDataSourceProvider,
-  );
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final remoteDataSource = ref.watch(authRemoteDataSourceProvider);
 
   return AuthRepositoryImpl(
     remoteDataSource,
+    ref.watch(secureStorageServiceProvider),
   );
 });
 
-final loginUseCaseProvider =
-    Provider<Login>((ref) {
-  final repository = ref.watch(
-    authRepositoryProvider,
-  );
+final loginUseCaseProvider = Provider<Login>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
 
   return Login(repository);
 });
 
-final logoutUseCaseProvider =
-    Provider<Logout>((ref) {
-  final repository = ref.watch(
-    authRepositoryProvider,
-  );
+final logoutUseCaseProvider = Provider<Logout>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
 
   return Logout(repository);
 });
@@ -52,45 +39,30 @@ final logoutUseCaseProvider =
 class AuthNotifier extends AsyncNotifier<AuthState> {
   @override
   Future<AuthState> build() async {
-    return const AuthState(
-      status: AuthStatus.loggedOut,
-    );
+    final repository = ref.watch(authRepositoryProvider);
+
+    return repository.restoreSession();
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
-      final login = ref.read(
-        loginUseCaseProvider,
-      );
+      final login = ref.read(loginUseCaseProvider);
 
-      return login(
-        email: email,
-        password: password,
-      );
+      return login(email: email, password: password);
     });
   }
 
   Future<void> logout() async {
-    final logout = ref.read(
-      logoutUseCaseProvider,
-    );
+    final logout = ref.read(logoutUseCaseProvider);
 
     await logout();
 
-    state = const AsyncData(
-      AuthState(
-        status: AuthStatus.loggedOut,
-      ),
-    );
+    state = const AsyncData(AuthState(status: AuthStatus.loggedOut));
   }
 }
 
-final authProvider =
-    AsyncNotifierProvider<AuthNotifier, AuthState>(
+final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(
   AuthNotifier.new,
 );

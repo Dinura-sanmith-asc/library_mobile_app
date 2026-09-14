@@ -1,33 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:library_mobile_app/features/books/presentation/pages/books_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:library_mobile_app/app.dart';
 
 void main() {
-  testWidgets('Home page opens the books list', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: LibraryApp(),
-      ),
-    );
+  testWidgets('fresh session opens the login page', (tester) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    dotenv.loadFromString(envString: 'BASE_URL=https://library.test');
 
-    expect(find.text('Welcome'), findsOneWidget);
-    expect(find.text('Books'), findsOneWidget);
-    expect(find.text('Members'), findsOneWidget);
-    expect(find.text('Borrowings'), findsOneWidget);
-
-    await tester.tap(find.text('Books'));
+    await tester.pumpWidget(const ProviderScope(child: LibraryApp()));
     await tester.pumpAndSettle();
 
-    expect(find.byType(BooksPage), findsOneWidget);
-    expect(find.text('Clean Code'), findsOneWidget);
-    expect(find.text('The Pragmatic Programmer'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(3));
-    expect(find.text('Borrowed'), findsOneWidget);
-
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.text('Library Login'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
   });
 }
