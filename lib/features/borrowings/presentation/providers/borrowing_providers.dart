@@ -10,6 +10,7 @@ import '../../domain/entities/borrowing.dart';
 import '../../domain/repositories/borrowing_repository.dart';
 import '../../domain/usecases/borrow_book.dart';
 import '../../domain/usecases/get_member_borrowings.dart';
+import '../../domain/usecases/return_book.dart';
 
 final borrowingRemoteDataSourceProvider = Provider<BorrowingRemoteDataSource>((
   ref,
@@ -78,4 +79,40 @@ class BorrowBookNotifier extends AsyncNotifier<void> {
 
 final borrowBookProvider = AsyncNotifierProvider<BorrowBookNotifier, void>(
   BorrowBookNotifier.new,
+);
+
+final returnBookUseCaseProvider = Provider<ReturnBook>((ref) {
+  return ReturnBook(ref.watch(borrowingRepositoryProvider));
+});
+
+class ReturnBookNotifier extends AsyncNotifier<void> {
+  int? activeBorrowingId;
+
+  @override
+  Future<void> build() async {}
+
+  Future<void> returnBook({
+    required int borrowingId,
+    required int bookId,
+  }) async {
+    if (state.isLoading) {
+      return;
+    }
+
+    activeBorrowingId = borrowingId;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final returnBook = ref.read(returnBookUseCaseProvider);
+      await returnBook(borrowingId);
+
+      ref.invalidate(myBorrowingsProvider);
+      ref.invalidate(booksProvider);
+      ref.invalidate(bookDetailsProvider(bookId));
+    });
+    activeBorrowingId = null;
+  }
+}
+
+final returnBookProvider = AsyncNotifierProvider<ReturnBookNotifier, void>(
+  ReturnBookNotifier.new,
 );

@@ -47,6 +47,79 @@ void main() {
     expect(adapter.request?.data, {'bookId': 7, 'memberId': 23});
   });
 
+  test('posts return endpoint without a request body', () async {
+    const storage = SecureStorageService();
+    await storage.saveAccessToken('jwt-token');
+    final adapter = _BorrowingApiAdapter();
+    final client = ApiClient(storage)..dio.httpClientAdapter = adapter;
+    final dataSource = BorrowingRemoteDataSourceImpl(client);
+
+    await dataSource.returnBook(10);
+
+    expect(adapter.request?.method, 'POST');
+    expect(adapter.request?.path, '/api/borrowings/10/return');
+    expect(adapter.request?.headers['Authorization'], 'Bearer jwt-token');
+    expect(adapter.request?.data, isNull);
+  });
+
+  for (final testCase in [
+    (
+      statusCode: 401,
+      code: 'authentication_required',
+      type: ApiExceptionType.unauthorized,
+      message: 'Your session is invalid or has expired.',
+    ),
+    (
+      statusCode: 403,
+      code: 'forbidden_borrowing_return',
+      type: ApiExceptionType.forbidden,
+      message: 'You do not have permission to return this borrowing.',
+    ),
+    (
+      statusCode: 404,
+      code: 'borrowing_not_found',
+      type: ApiExceptionType.notFound,
+      message: 'Borrowing record not found.',
+    ),
+    (
+      statusCode: 404,
+      code: 'book_not_found',
+      type: ApiExceptionType.notFound,
+      message: 'Book not found.',
+    ),
+    (
+      statusCode: 409,
+      code: 'book_already_returned',
+      type: ApiExceptionType.conflict,
+      message: 'This book has already been returned.',
+    ),
+    (
+      statusCode: 500,
+      code: 'server_error',
+      type: ApiExceptionType.network,
+      message: 'Unable to return the book. Please try again.',
+    ),
+  ]) {
+    test('maps return ${testCase.code} to a friendly error', () async {
+      const storage = SecureStorageService();
+      final adapter = _BorrowingApiAdapter(
+        returnStatusCode: testCase.statusCode,
+        returnErrorCode: testCase.code,
+      );
+      final client = ApiClient(storage)..dio.httpClientAdapter = adapter;
+      final dataSource = BorrowingRemoteDataSourceImpl(client);
+
+      expect(
+        dataSource.returnBook(10),
+        throwsA(
+          isA<ApiException>()
+              .having((error) => error.type, 'type', testCase.type)
+              .having((error) => error.message, 'message', testCase.message),
+        ),
+      );
+    });
+  }
+
   for (final testCase in [
     (statusCode: 400, type: ApiExceptionType.badRequest),
     (statusCode: 403, type: ApiExceptionType.forbidden),
@@ -77,9 +150,15 @@ void main() {
 
 class _BorrowingApiAdapter implements HttpClientAdapter {
   final int postStatusCode;
+  final int returnStatusCode;
+  final String? returnErrorCode;
   RequestOptions? request;
 
-  _BorrowingApiAdapter({this.postStatusCode = 201});
+  _BorrowingApiAdapter({
+    this.postStatusCode = 201,
+    this.returnStatusCode = 200,
+    this.returnErrorCode,
+  });
 
   @override
   Future<ResponseBody> fetch(
@@ -89,6 +168,7 @@ class _BorrowingApiAdapter implements HttpClientAdapter {
   ) async {
     request = options;
     final isHistoryRequest = options.method == 'GET';
+    final isReturnRequest = options.path.endsWith('/return');
     final body = isHistoryRequest
         ? jsonEncode([
             {
@@ -101,11 +181,17 @@ class _BorrowingApiAdapter implements HttpClientAdapter {
               'status': 0,
             },
           ])
+        : isReturnRequest
+        ? jsonEncode({'id': 10, 'code': returnErrorCode})
         : jsonEncode({'id': 1, 'detail': 'Backend borrowing message.'});
 
     return ResponseBody.fromString(
       body,
-      isHistoryRequest ? 200 : postStatusCode,
+      isHistoryRequest
+          ? 200
+          : isReturnRequest
+          ? returnStatusCode
+          : postStatusCode,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
       },

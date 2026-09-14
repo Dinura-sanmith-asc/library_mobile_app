@@ -67,6 +67,12 @@ class _BorrowingCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookAsync = ref.watch(bookDetailsProvider(borrowing.bookId));
+    final returnAsync = ref.watch(returnBookProvider);
+    final returnNotifier = ref.read(returnBookProvider.notifier);
+    final isReturningThis =
+        returnAsync.isLoading &&
+        returnNotifier.activeBorrowingId == borrowing.id;
+    final canReturn = borrowing.status != BorrowingStatus.returned;
 
     return Card(
       child: Padding(
@@ -90,11 +96,47 @@ class _BorrowingCard extends ConsumerWidget {
                 '${_formatDate(borrowing.returnedDate!)}',
               ),
             const SizedBox(height: 8),
-            _StatusChip(status: borrowing.status),
+            Row(
+              children: [
+                _StatusChip(status: borrowing.status),
+                const Spacer(),
+                if (canReturn)
+                  FilledButton(
+                    onPressed: returnAsync.isLoading
+                        ? null
+                        : () => _returnBook(context, ref),
+                    child: isReturningThis
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Return'),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _returnBook(BuildContext context, WidgetRef ref) async {
+    await ref
+        .read(returnBookProvider.notifier)
+        .returnBook(borrowingId: borrowing.id, bookId: borrowing.bookId);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final result = ref.read(returnBookProvider);
+    final message = result.hasError
+        ? result.error.toString()
+        : 'Book returned successfully.';
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 }
 

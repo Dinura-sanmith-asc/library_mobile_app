@@ -18,4 +18,9 @@ class BorrowingRepositoryImpl implements BorrowingRepository {
   Future<void> borrowBook({required int bookId, required int memberId}) {
     return remoteDataSource.borrowBook(bookId: bookId, memberId: memberId);
   }
+
+  @override
+  Future<void> returnBook(int borrowingId) {
+    return remoteDataSource.returnBook(borrowingId);
+  }
 }

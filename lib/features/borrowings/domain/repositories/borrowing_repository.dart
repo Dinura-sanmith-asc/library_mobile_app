@@ -4,4 +4,6 @@ abstract class BorrowingRepository {
   Future<List<Borrowing>> getMemberBorrowings(int memberId);
 
   Future<void> borrowBook({required int bookId, required int memberId});
+
+  Future<void> returnBook(int borrowingId);
 }
