@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-enum ApiExceptionType { unauthorized, forbidden, network }
+enum ApiExceptionType { unauthorized, forbidden, notFound, network }
 
 class ApiException implements Exception {
   final String message;
@@ -17,6 +17,7 @@ class ApiException implements Exception {
     DioException error, {
     String unauthorizedMessage = 'Authentication is required',
     String forbiddenMessage = 'You do not have permission for this action',
+    String notFoundMessage = 'Resource not found',
     String fallbackMessage = 'Unable to complete the request',
   }) {
     final statusCode = error.response?.statusCode;
@@ -33,6 +34,14 @@ class ApiException implements Exception {
       return ApiException(
         forbiddenMessage,
         type: ApiExceptionType.forbidden,
+        statusCode: statusCode,
+      );
+    }
+
+    if (statusCode == 404) {
+      return ApiException(
+        notFoundMessage,
+        type: ApiExceptionType.notFound,
         statusCode: statusCode,
       );
     }
