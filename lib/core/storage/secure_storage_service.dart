@@ -5,6 +5,7 @@ class SecureStorageService {
   static const _memberIdKey = 'member_id';
   static const _roleKey = 'role';
   static const _expiresAtKey = 'expires_at';
+  static const _onboardingCompleteKey = 'onboarding_complete';
 
   final FlutterSecureStorage _storage;
 
@@ -62,5 +63,13 @@ class SecureStorageService {
       _storage.delete(key: _roleKey),
       _storage.delete(key: _expiresAtKey),
     ]);
+  }
+
+  Future<bool> hasCompletedOnboarding() async {
+    return await _storage.read(key: _onboardingCompleteKey) == 'true';
+  }
+
+  Future<void> completeOnboarding() {
+    return _storage.write(key: _onboardingCompleteKey, value: 'true');
   }
 }

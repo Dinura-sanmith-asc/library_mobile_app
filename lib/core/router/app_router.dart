@@ -9,6 +9,8 @@ import '../../features/books/presentation/pages/book_details_page.dart';
 import '../../features/books/presentation/pages/books_page.dart';
 import '../../features/borrowings/presentation/pages/my_borrowings_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/onboarding/presentation/pages/splash_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import 'main_shell.dart';
@@ -24,7 +26,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       );
 
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/splash',
 
     redirect: (context, state) {
       final location = state.matchedLocation;
@@ -33,6 +35,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isUnsupportedPage =
           location == '/unsupported';
+
+      final isStartupPage =
+          location == '/splash' ||
+          location == '/onboarding';
+
+      if (isStartupPage) {
+        return null;
+      }
 
       // 1. Not logged in
       if (!authState.isLoggedIn) {
@@ -61,6 +71,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) {
+          return const SplashPage();
+        },
+      ),
+
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) {
+          return const OnboardingPage();
+        },
+      ),
+
       GoRoute(
         path: '/login',
         builder: (context, state) {
