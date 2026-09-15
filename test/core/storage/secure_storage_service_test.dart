@@ -27,4 +27,16 @@ void main() {
     expect(await service.getRole(), isNull);
     expect(await service.getExpiresAt(), isNull);
   });
+
+  test('persists onboarding completion separately from the session', () async {
+    FlutterSecureStorage.setMockInitialValues({});
+    const service = SecureStorageService();
+
+    expect(await service.hasCompletedOnboarding(), isFalse);
+
+    await service.completeOnboarding();
+    await service.clearSession();
+
+    expect(await service.hasCompletedOnboarding(), isTrue);
+  });
 }

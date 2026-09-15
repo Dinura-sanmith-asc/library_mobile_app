@@ -80,7 +80,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Full name',
-                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person_outline_rounded),
               ),
               maxLength: 150,
               validator: (value) {
@@ -99,7 +99,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 labelText: 'Profile email',
-                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.mail_outline_rounded),
                 helperText: 'This does not change your login email.',
               ),
               maxLength: 200,
@@ -112,7 +112,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: 'Phone number (optional)',
-                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone_outlined),
               ),
               maxLength: 30,
             ),

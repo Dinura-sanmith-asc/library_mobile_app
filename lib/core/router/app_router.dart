@@ -16,14 +16,10 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import 'main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authAsync =
-    ref.watch(authProvider);
+  final authAsync = ref.watch(authProvider);
 
   final authState =
-      authAsync.value ??
-      const AuthState(
-        status: AuthStatus.loggedOut,
-      );
+      authAsync.value ?? const AuthState(status: AuthStatus.loggedOut);
 
   return GoRouter(
     initialLocation: '/splash',
@@ -33,12 +29,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isLoginPage = location == '/login';
 
-      final isUnsupportedPage =
-          location == '/unsupported';
+      final isUnsupportedPage = location == '/unsupported';
 
-      final isStartupPage =
-          location == '/splash' ||
-          location == '/onboarding';
+      final isStartupPage = location == '/splash' || location == '/onboarding';
 
       if (isStartupPage) {
         return null;
@@ -101,9 +94,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       ShellRoute(
         builder: (context, state, child) {
-          return MainShell(
-            child: child,
-          );
+          return MainShell(child: child);
         },
         routes: [
           GoRoute(
@@ -146,13 +137,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/books/:id',
         builder: (context, state) {
-          final id = int.parse(
-            state.pathParameters['id']!,
-          );
+          final id = int.parse(state.pathParameters['id']!);
 
-          return BookDetailsPage(
-            bookId: id,
-          );
+          return BookDetailsPage(bookId: id);
         },
       ),
     ],

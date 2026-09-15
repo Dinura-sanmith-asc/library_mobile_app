@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/api/api_exception.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/book.dart';
 import '../providers/book_providers.dart';
 
@@ -21,7 +22,22 @@ class _BooksPageState extends ConsumerState<BooksPage> {
     final booksAsync = ref.watch(booksProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Books')),
+      appBar: AppBar(
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Explore Books'),
+            Text(
+              'Find your next read',
+              style: TextStyle(
+                color: AppColors.muted,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: booksAsync.when(
         loading: () {
           return const Center(child: CircularProgressIndicator());
@@ -50,9 +66,8 @@ class _BooksPageState extends ConsumerState<BooksPage> {
         children: [
           TextField(
             decoration: const InputDecoration(
-              labelText: 'Search books',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+              hintText: 'Search by title or author',
+              prefixIcon: Icon(Icons.search_rounded),
             ),
             onChanged: (value) {
               setState(() {
@@ -66,24 +81,48 @@ class _BooksPageState extends ConsumerState<BooksPage> {
                 ? const Center(child: Text('No books available'))
                 : filteredBooks.isEmpty
                 ? const Center(child: Text('No books found'))
-                : ListView.builder(
+                : ListView.separated(
                     itemCount: filteredBooks.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final book = filteredBooks[index];
 
                       return Card(
                         child: ListTile(
-                          leading: const Icon(Icons.book),
-                          title: Text(book.title),
+                          contentPadding: const EdgeInsets.all(14),
+                          leading: Container(
+                            width: 48,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: AppColors.paleBlue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.menu_book_rounded,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: Text(
+                            book.title,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           subtitle: Text(
                             '${book.author}\n'
-                            'Available Copies: '
+                            'Available: '
                             '${book.availableCopies} / '
                             '${book.totalCopies}',
+                            style: const TextStyle(
+                              color: AppColors.muted,
+                              height: 1.4,
+                            ),
                           ),
                           isThreeLine: true,
-                          trailing: Text(
-                            book.isAvailable ? 'Available' : 'Unavailable',
+                          trailing: Icon(
+                            Icons.chevron_right_rounded,
+                            color: book.isAvailable
+                                ? AppColors.primary
+                                : AppColors.muted,
                           ),
                           onTap: () {
                             context.push('/books/${book.id}');

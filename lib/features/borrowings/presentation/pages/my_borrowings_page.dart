@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/api_exception.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../../domain/entities/borrowing.dart';
 import '../providers/borrowing_providers.dart';
@@ -14,7 +15,22 @@ class MyBorrowingsPage extends ConsumerWidget {
     final borrowingsAsync = ref.watch(myBorrowingsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Borrowings')),
+      appBar: AppBar(
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('My Borrowings'),
+            Text(
+              'Your loans and reading history',
+              style: TextStyle(
+                color: AppColors.muted,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: borrowingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => _ErrorView(
@@ -80,11 +96,31 @@ class _BorrowingCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              bookAsync.value?.title ?? 'Book #${borrowing.bookId}',
-              style: Theme.of(context).textTheme.titleMedium,
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: AppColors.paleBlue,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.menu_book_rounded,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    bookAsync.value?.title ?? 'Book #${borrowing.bookId}',
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             Text(
               'Borrowed: '
               '${_formatDate(borrowing.borrowedDate)}',

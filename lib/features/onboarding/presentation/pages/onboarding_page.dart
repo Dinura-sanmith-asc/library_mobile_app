@@ -159,19 +159,15 @@ class _OnboardingSlide extends StatelessWidget {
           Text(
             data.title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.6,
-            ),
+            style: Theme.of(context).textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.6),
           ),
           const SizedBox(height: 16),
           Text(
             data.description,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.muted,
-              height: 1.5,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge
+                ?.copyWith(color: AppColors.muted, height: 1.5),
           ),
         ],
       ),

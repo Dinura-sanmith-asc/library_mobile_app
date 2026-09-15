@@ -37,9 +37,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final hasCompletedOnboarding = results[1] as bool;
 
     if (authState.isLoggedIn) {
-      context.go(
-        authState.role == UserRole.member ? '/home' : '/unsupported',
-      );
+      context.go(authState.role == UserRole.member ? '/home' : '/unsupported');
       return;
     }
 

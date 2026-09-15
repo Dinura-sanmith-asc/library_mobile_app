@@ -6,11 +6,7 @@ class LibraryMark extends StatelessWidget {
   final double size;
   final bool inverted;
 
-  const LibraryMark({
-    super.key,
-    this.size = 72,
-    this.inverted = false,
-  });
+  const LibraryMark({super.key, this.size = 72, this.inverted = false});
 
   @override
   Widget build(BuildContext context) {
