@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +18,8 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
+  Timer? _navigationTimer;
+
   @override
   void initState() {
     super.initState();
@@ -26,22 +30,35 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final results = await Future.wait([
       ref.read(authProvider.future),
       ref.read(secureStorageServiceProvider).hasCompletedOnboarding(),
-      Future<void>.delayed(const Duration(milliseconds: 1100)),
     ]);
 
     if (!mounted) {
       return;
     }
 
-    final authState = results[0] as AuthState;
-    final hasCompletedOnboarding = results[1] as bool;
+    _navigationTimer = Timer(const Duration(milliseconds: 1100), () {
+      if (!mounted) {
+        return;
+      }
 
-    if (authState.isLoggedIn) {
-      context.go(authState.role == UserRole.member ? '/home' : '/unsupported');
-      return;
-    }
+      final authState = results[0] as AuthState;
+      final hasCompletedOnboarding = results[1] as bool;
 
-    context.go(hasCompletedOnboarding ? '/login' : '/onboarding');
+      if (authState.isLoggedIn) {
+        context.go(
+          authState.role == UserRole.member ? '/home' : '/unsupported',
+        );
+        return;
+      }
+
+      context.go(hasCompletedOnboarding ? '/login' : '/onboarding');
+    });
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
   }
 
   @override
